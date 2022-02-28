@@ -49,4 +49,9 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
   },
+  scoreText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 24,
+  },
 });
