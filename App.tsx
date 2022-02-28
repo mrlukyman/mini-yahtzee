@@ -1,20 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, View, SafeAreaView, Button, TouchableOpacity } from 'react-native'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { styles } from './Styles/global-styles';
+import { Header, Footer, GameBoard } from './Components/index';
+import { getRandom } from './Api/DiceHelper';
+
 
 export default function App() {
+  const [sumOfDices, setSumOfDices] = React.useState(0)
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Header />
+      <GameBoard />
+      <Footer />
+      <StatusBar style="light" />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
