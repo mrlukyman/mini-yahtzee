@@ -14,13 +14,18 @@ export const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontSize: 20,
+    marginBottom: 30
   },
   score: {
     color: '#fff',
     fontSize: 30,
-    backgroundColor: '#36363694',
-    borderRadius: 10,
-
+    padding: 15,
+    
+  },
+  scoreWrapper: {
+    backgroundColor: '#2c2c2c',
+    borderRadius: 5,
+    marginBottom: 20
   },
   headerText: {
     color: '#b30d0d',
@@ -36,11 +41,16 @@ export const styles = StyleSheet.create({
   },
   dices: {
     flexDirection: 'row',
+    height: 80,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: 50,
   },
   button: {
     backgroundColor: '#b30d0d',
     padding: 10,
     borderRadius: 5,
+    marginBottom: 20,
   },
   selection: {
     flexDirection: 'row',

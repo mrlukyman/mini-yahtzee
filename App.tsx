@@ -8,7 +8,6 @@ import { getRandom } from './Api/DiceHelper';
 
 
 export default function App() {
-  const [sumOfDices, setSumOfDices] = React.useState(0)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
