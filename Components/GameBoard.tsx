@@ -89,7 +89,7 @@ export const GameBoard = () => {
   }, [diceState])
 
   const onScorePress = useCallback((dieIndex: number) => {
-    console.log(`onScorePress: ${dieIndex} - gameState: ${gameState}`)
+    //console.log(`onScorePress: ${dieIndex} - gameState: ${gameState}`)
     if(scoreState[dieIndex].isAdded && gameState === GameState.SCORE_ASSIGN) {
       setStatus(`You've aleready selected ${dieIndex + 1}`)
     } else {
