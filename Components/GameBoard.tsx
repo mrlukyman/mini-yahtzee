@@ -1,10 +1,9 @@
 import React, {
   useCallback,
-  useMemo,
   useRef,
   useState
 } from 'react'
-import { Pressable, Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import { styles } from '../Styles/global-styles'
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons'
 import { getRandom } from '../Api/DiceHelper'
