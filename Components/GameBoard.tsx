@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useMemo,
+  useRef,
   useState
 } from 'react'
 import { Pressable, Text, TouchableOpacity, View } from 'react-native'
@@ -25,9 +26,9 @@ enum GameState {
 const statusText = {
   [GameState.NOT_STARTED]: 'Throw dice',
   [GameState.DICE_THROW]: 'Select and throw dice again',
-  [GameState.SCORE_ASSIGN]: 'Select your points',
+  [GameState.SCORE_ASSIGN]: 'Select your points before the next throw',
   [GameState.GAME_WON]: 'You won!',
-  [GameState.GAME_LOST]: 'You lost!',
+  [GameState.GAME_LOST]: 'Game over! All points selected',
 }
 
 const initialDiceState = Array.from({ length: NUMBER_OF_DICE }, (_, i) => ({
@@ -46,7 +47,6 @@ const initialScoreState: Score[] = Array.from({ length: HIGHEST_DIE_VALUE }, (_,
   totalScore: 0,
   isAdded: false,
 }))
-  
 
 export const GameBoard = () => {
   const [diceState, setDiceState] = useState(initialDiceState)
@@ -55,10 +55,7 @@ export const GameBoard = () => {
   const [numOfThrowsLeft, setNumOfThrowsLeft] = useState(NUMBER_OF_THROWS)
   const [status, setStatus] = useState(statusText[gameState])
   const totalScore = scoreState.reduce((totalScore, score) => totalScore + score.totalScore, 0)
-
-  const isBonusReached = useMemo(() => (
-    totalScore >= BONUS
-  ), [totalScore])
+  const totalScoreRef = useRef(0)
 
   const setNextRound = useCallback(() => {
     setGameState(GameState.NOT_STARTED)
@@ -76,12 +73,12 @@ export const GameBoard = () => {
   }, [])
 
   const finishGame = useCallback(() => {
-    const finalGameState = totalScore >= BONUS
+    const finalGameState = totalScoreRef.current >= BONUS
       ? GameState.GAME_WON
       : GameState.GAME_LOST
     setGameState(finalGameState)
     setStatus(statusText[finalGameState])
-  }, [totalScore])
+  }, [])
 
   const onDicePress = useCallback((dieIndex: number) => {
     if (gameState === GameState.DICE_THROW) {
@@ -93,34 +90,40 @@ export const GameBoard = () => {
 
   const onScorePress = useCallback((dieIndex: number) => {
     console.log(`onScorePress: ${dieIndex} - gameState: ${gameState}`)
-    if (gameState === GameState.SCORE_ASSIGN) {
-      const newScoreState = scoreState.reduce<Score[]>((newScoreState, oldScore, index) => {
-        const newScore = { ...oldScore }
-        if (index === dieIndex) {
-          const newDiceValue = diceState.reduce((newDiceValue, die) => {
-            if (die.dieValue === dieIndex + 1) {
-              newDiceValue += 1
-            }
-            return newDiceValue
-          }, 0)
-          newScore.totalScore = newDiceValue * newScore.dieValue
-          newScore.isAdded = true
-        }
-        newScoreState.push(newScore)
-        return newScoreState
-      }, [])
-      setScoreState(newScoreState)
-      if (isBonusReached) {
-        finishGame()
-      } else {
-        if (newScoreState.every(score => score.isAdded)) {
+    if(scoreState[dieIndex].isAdded && gameState === GameState.SCORE_ASSIGN) {
+      setStatus(`You've aleready selected ${dieIndex + 1}`)
+    } else {
+      if (gameState === GameState.SCORE_ASSIGN) {
+        const newScoreState = scoreState.reduce<Score[]>((newScoreState, oldScore, index) => {
+          const newScore = { ...oldScore }
+          if (index === dieIndex) {
+            const newDiceValue = diceState.reduce((newDiceValue, die) => {
+              if (die.dieValue === dieIndex + 1) {
+                newDiceValue += 1
+              }
+              return newDiceValue
+            }, 0)
+            newScore.totalScore = newDiceValue * newScore.dieValue
+            newScore.isAdded = true
+          }
+          newScoreState.push(newScore)
+          return newScoreState
+        }, [])
+        setScoreState(newScoreState)
+        totalScoreRef.current = newScoreState.reduce((totalScore, score) => totalScore + score.totalScore, 0)
+        const isBonusReached = totalScoreRef.current >= BONUS
+        if (isBonusReached) {
           finishGame()
         } else {
-          setNextRound()
+          if (newScoreState.every(score => score.isAdded)) {
+            finishGame()
+          } else {
+            setNextRound()
+          }
         }
       }
     }
-  }, [gameState, scoreState, diceState, isBonusReached, finishGame])
+  }, [gameState, scoreState, diceState, finishGame])
 
   const rerollDice = useCallback(() => {
     const newDiceState = diceState.map(({dieValue, isHeld}) => ({
@@ -153,10 +156,10 @@ export const GameBoard = () => {
 
   const renderEmptyDice = useCallback(() => (
     diceState.map((_, index) => (
-      <Ionicons name="ios-square" 
+      <Ionicons name='ios-square' 
         size={70} 
         color='#2c2c2c'
-        key={"square-" + index}
+        key={'square-' + index}
       />
     ))
   ), [])
@@ -183,14 +186,12 @@ export const GameBoard = () => {
       <View style={styles.scoreWrapper}>
         <Text style={styles.score}>Score: {totalScore}</Text>
       </View>
-      <Text style={styles.text}>{status}</Text>
       <Text style={styles.text}>Throws left: {numOfThrowsLeft}</Text>
+      <Text style={styles.text}>{status}</Text>
       <Text style={styles.text}>{
         gameState === GameState.GAME_WON
-          ? 'You won!'
-          : gameState === GameState.GAME_LOST
-            ? 'You lost!'
-            : `You are ${BONUS - totalScore} points away from bonus`
+          ? 'Bonus reached!'
+          : `You are ${BONUS - totalScore} points away from bonus`
       }</Text>
 
 
@@ -198,7 +199,7 @@ export const GameBoard = () => {
         style={styles.button}
         onPress={onThrowPress}
       >
-        <Text style={[styles.text, {marginBottom: 0}]}>Throw dice</Text>
+        <Text style={[styles.text, {marginBottom: 0}]}>{gameState === GameState.GAME_LOST || gameState === GameState.GAME_WON ? 'Restart' : 'Throw dice'}</Text>
       </TouchableOpacity>
       <View style={styles.selection}>
         {scoreState.map((score, index) => (
@@ -209,7 +210,7 @@ export const GameBoard = () => {
             <MaterialCommunityIcons
               name={`numeric-${index + 1}-circle` as keyof typeof MaterialCommunityIcons.glyphMap}
               size={60}
-              color={score.isAdded ? "#2c2c2c" : "#ffffff"}
+              color={score.isAdded ? '#2c2c2c' : '#ffffff'}
               key={'number-'}
             />
             <Text style={styles.scoreText}>{score.totalScore}</Text>

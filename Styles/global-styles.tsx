@@ -19,11 +19,13 @@ export const styles = StyleSheet.create({
   score: {
     color: '#fff',
     fontSize: 30,
-    padding: 15,
-    
   },
   scoreWrapper: {
     backgroundColor: '#2c2c2c',
+    height: 55,
+    width: 195,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
     marginBottom: 20
   },
@@ -48,7 +50,10 @@ export const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#b30d0d',
-    padding: 10,
+    height: 55,
+    width: 130,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
     marginBottom: 20,
   },
